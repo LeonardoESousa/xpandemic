@@ -1,0 +1,10 @@
+*txt
+*mol2
+*gif
+*mp4
+git_commands
+__pycache__
+*.egg-info
+build
+mykmc
+*.ipynb

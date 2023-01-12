@@ -39,9 +39,6 @@ class Walk:
         r      = kwargs['r']
         system = kwargs['system']
         ex     = kwargs['particle']
-        mats   = system.mats    
-        local  = ex.position    
-        mat = mats[local]
         
         taxa = self.Rf[ex.age]/r
         taxa[r == 0] = 0
@@ -62,7 +59,7 @@ class Incubation:
      
     def action(self,particle,system,local):
         system.set_particles([Infectious(particle.position)])
-        particle.kill(self.kind,system,system.s1,'converted')
+        particle.kill(self.kind,system,particle.age,'converted')
         
 class Death:
     def __init__(self,**kwargs):
@@ -71,10 +68,11 @@ class Death:
         self.IFR      = kwargs['ifr']
 
     def rate(self,**kwargs):
-        return self.IFR/self.lifetime
+        ex     = kwargs['particle']
+        return self.IFR[ex.age]/self.lifetime
      
     def action(self,particle,system,local):
-        particle.kill(self.kind,system,system.s1,'dead') 
+        particle.kill(self.kind,system,particle.age,'dead') 
 
 class Cure:
     def __init__(self,**kwargs):
@@ -83,7 +81,8 @@ class Cure:
         self.IFR      = kwargs['ifr']
 
     def rate(self,**kwargs):
-        return (1-self.IFR)/self.lifetime
+        ex     = kwargs['particle']
+        return (1-self.IFR[ex.age])/self.lifetime
      
     def action(self,particle,system,local):
-        particle.kill(self.kind,system,system.s1,'recovered') 
+        particle.kill(self.kind,system,particle.age,'recovered') 

@@ -1,4 +1,3 @@
-*txt
 *mol2
 *gif
 *mp4
@@ -7,4 +6,4 @@ __pycache__
 *.egg-info
 build
 mykmc
-*.ipynb
+teste*

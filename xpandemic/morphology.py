@@ -18,23 +18,6 @@ class randomized_error(Exception):
 # note: always define the function by list (param) that contains the things needed
 #### CHOOSE A FUNC TO GENERATE PARTICLES
 
-'''
-def randomized(available, number, system, kwargs):
-    mat = kwargs['mat']
-    selected = random.sample(list(available),number)
-    selected = [s for s in selected if system.mats[s] in mat]    
-    count   = 0
-    cutoff  = number*10    
-    while len(selected) < number and count < cutoff:
-        count = count + 1
-        new = random.sample(list(available),number-len(selected))
-        for n in new:
-            if system.mats[n] in mat:
-                selected.append(n)                      
-    if count >= cutoff and len(selected) != number:
-        raise randomized_error(number)                   
-    return selected            
-'''
     
 def randomized(available, number, system, kwargs):
     mat = kwargs['mat']
@@ -90,16 +73,17 @@ def interface(available, number, system, kwargs):
 
 ##CLASS FOR GENERATING PARTICLES IN THE SYSTEM###########################################
 class Create_Particles():
-    def __init__(self,kind, num, method, **kwargs):
+    def __init__(self,kind, num, method,ages, **kwargs):
         self.kind   = kind
         self.num    = num
         self.method = method
         self.argv   = kwargs
+        self.ages   = ages
 
     def assign_to_system(self,system):
         selected = self.method(range(len(system.X)),self.num, system, self.argv)
         Particula = getattr(sys.modules[__name__], self.kind.title())
-        particles = [Particula(number) for number in selected]
+        particles = [Particula(number,self.ages) for number in selected]
         system.set_particles(particles)
         
 class Create_Particles_PROB():
@@ -302,7 +286,32 @@ class ReadLattice():
         data = np.loadtxt(self.file,comments='#')
         system.set_morph(data[:,0],data[:,1],data[:,2],data[:,3]) 
 
+class Map():
+    def __init__(self,mapa,vector): #initializing the lattice class with some basic info given by the user
+        self.mapa        = mapa
+        self.vector      = vector
+        
+    def make(self): #Generating the set X,Y,Z,Mats
+        materials = np.loadtxt(self.mapa)
+        
+        numx, numy = materials.shape[0],materials.shape[1]
+        Numx = np.array(range(numx)) 
+        Numy = np.array(range(numy)) 
+        
+        X,Y  = np.meshgrid(Numx,Numy,indexing = 'ij')
+        X = X.flatten()
+        Y = Y.flatten()
+        Z    = np.zeros(X.shape)
+        Mats = materials.flatten()        
+        X = X[Mats ==1]
+        Y = Y[Mats ==1]
+        Z = Z[Mats ==1]
+        Mats = Mats[Mats ==1]
+        return X,Y,Z,Mats
 
+    def assign_to_system(self, system): #adding the X,Y,Z,Mats to the system
+        X, Y, Z, Mats = self.make()
+        system.set_morph(X,Y,Z,Mats)
 
 class Lattice():
     '''Arguments:

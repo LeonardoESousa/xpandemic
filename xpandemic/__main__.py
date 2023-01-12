@@ -125,7 +125,7 @@ def decision(s,system):
     hop  = system.processes[kind] 
     mono = system.monomolecular[kind]     
     jump_rate = [transfer.rate(r=r,dx=dx,dy=dy,dz=dz,system=system,particle=s) for transfer in hop] 
-    mono_rate = [[m.rate(material=system.mats[local])] for m in mono]
+    mono_rate = [[m.rate(material=system.mats[local],particle=s)] for m in mono]
     jump_rate.extend(mono_rate)   
     sizes     = np.array([len(i) for i in jump_rate])
     jump_rate = np.concatenate(jump_rate)
@@ -157,7 +157,7 @@ def step_nonani(system):
         system.time += np.mean((1/R)*np.log(1/random.uniform(0,1)))   
     Ss = system.particles.copy()
     for s in Ss:
-        s.kill('alive',system,system.s1,'alive')
+        s.kill('alive',system,s.age,'alive')
  
 def step_ani(system):
     while system.count_particles() > 0 and system.time < system.time_limit:
@@ -176,7 +176,7 @@ def step_ani(system):
         return Ss
     Ss = system.particles.copy()
     for s in Ss:
-        s.kill('alive',system,system.s1,'alive')
+        s.kill('alive',system,s.age,'alive')
 ##########################################################################################
 
 if animation_mode:
@@ -231,7 +231,7 @@ def animate(num,system,ax,marker_option,rotate):
     handles, labels = plt.gca().get_legend_handles_labels()
     by_label = dict(zip(labels, handles))
     plt.legend(by_label.values(), by_label.keys())
-    ax.text2D(0.03, 0.98, "time = %.2e ps" % (system.time), transform=ax.transAxes) #time
+    ax.text2D(0.03, 0.98, "time = %.1f days" % (system.time), transform=ax.transAxes) #time
     ax.text2D(0.03, 0.94, "npart  = %.0f"  % (len(system.particles)), transform=ax.transAxes) #npart
     
     ax.set_xlabel('X')

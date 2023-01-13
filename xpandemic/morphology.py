@@ -71,6 +71,23 @@ def interface(available, number, system, kwargs):
     selected = random.sample(new_available,number)        
     return selected            
 
+class Intervention():
+    def __init__(self,policy):
+        self.schedule = np.array(list(policy.keys()))
+        self.policy = policy
+        self.chosen = 0
+
+    def check(self,system):
+        try:
+            chosen = self.schedule[system.time >= self.schedule][0]
+            if chosen != self.chosen:
+                system.processes = self.policy[chosen][0]
+                system.monomolecular = self.policy[chosen][1]
+                self.chosen = chosen
+        except:
+            pass
+        
+
 ##CLASS FOR GENERATING PARTICLES IN THE SYSTEM###########################################
 class Create_Particles():
     def __init__(self,kind, num, method,ages, **kwargs):
@@ -287,7 +304,7 @@ class ReadLattice():
         system.set_morph(data[:,0],data[:,1],data[:,2],data[:,3]) 
 
 class Map():
-    def __init__(self,mapa,vector): #initializing the lattice class with some basic info given by the user
+    def __init__(self,mapa,vector):
         self.mapa        = mapa
         self.vector      = vector
         

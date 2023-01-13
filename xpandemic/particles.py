@@ -15,6 +15,7 @@ class Particles:
         self.Dx = 0
         self.Dy = 0
         self.Dz = 0
+        self.ages = ages
         self.age  = random.choices(list(ages.keys()), list(ages.values()))[0]
 
     def move(self,local,system):
@@ -32,7 +33,7 @@ class Particles:
         x, y, z  = X[self.position],Y[self.position],Z[self.position]
         mat = Mats[self.position]
         #energy = energies[self.position]
-        texto = f'{time:.0f},{self.Dx:.0f},{self.Dy:.0f},{self.Dz:.0f},{self.species},{energy:.0f},{mat:.0f},{x:.0f},{y:.0f},{z:.0f},{causamortis},{self.status}'
+        texto = f'{time:.3f},{self.Dx:.0f},{self.Dy:.0f},{self.Dz:.0f},{self.species},{energy:.0f},{mat:.0f},{x:.0f},{y:.0f},{z:.0f},{causamortis},{self.status}'
         self.report += texto+'\n'
     
     def kill(self,causamortis,system,energies,result):
@@ -63,3 +64,9 @@ class Infectious(Particles):
         Particles.__init__(self,'Infectious',initial,ages) 
         self.color  = "green"
         self.marker = "$I$"
+
+class Recovered(Particles):
+    def __init__(self,initial,ages):
+        Particles.__init__(self,'Recovered',initial,ages) 
+        self.color  = "green"
+        self.marker = "$R$"

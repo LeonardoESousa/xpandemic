@@ -1,6 +1,7 @@
 import numpy as np
 import random
 from xpandemic.system import System
+from xpandemic.morphology import Intervention
 import xpandemic.bimolecular
 import sys
 import warnings
@@ -34,6 +35,10 @@ for name, value in vars(param).items():
 #getting all essential info from user's input
 monomolecular       = param.monomolecular
 processes           = param.processes
+try:
+    intervention        = param.intervention
+except:
+    intervention        = Intervention({})
 
 def set_variables(name):
     try:
@@ -125,7 +130,7 @@ def decision(s,system):
     hop  = system.processes[kind] 
     mono = system.monomolecular[kind]     
     jump_rate = [transfer.rate(r=r,dx=dx,dy=dy,dz=dz,system=system,particle=s) for transfer in hop] 
-    mono_rate = [[m.rate(material=system.mats[local],particle=s)] for m in mono]
+    mono_rate = [[m.rate(material=system.mats[local],particle=s,system=system)] for m in mono]
     jump_rate.extend(mono_rate)   
     sizes     = np.array([len(i) for i in jump_rate])
     jump_rate = np.concatenate(jump_rate)
@@ -143,6 +148,7 @@ def decision(s,system):
 ########ITERATION FUNCTIONS#######################################################
 def step_nonani(system): 
     while system.count_particles() > 0 and system.time < system.time_limit:
+        intervention.check(system)
         system.IT += 1
         Ss = system.particles.copy()
         random.shuffle(Ss)
@@ -161,6 +167,7 @@ def step_nonani(system):
  
 def step_ani(system):
     while system.count_particles() > 0 and system.time < system.time_limit:
+        intervention.check(system)
         system.IT += 1
         Ss = system.particles.copy()
         random.shuffle(Ss)

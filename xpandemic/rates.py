@@ -58,7 +58,7 @@ class Incubation:
         return 1/self.time
      
     def action(self,particle,system,local):
-        system.set_particles([Infectious(particle.position)])
+        system.set_particles([Infectious(particle.position,particle.ages)])
         particle.kill(self.kind,system,particle.age,'converted')
         
 class Death:
@@ -76,7 +76,7 @@ class Death:
 
 class Cure:
     def __init__(self,**kwargs):
-        self.kind = 'death'
+        self.kind     = 'cure'
         self.lifetime = kwargs['time']
         self.IFR      = kwargs['ifr']
 
@@ -85,4 +85,46 @@ class Cure:
         return (1-self.IFR[ex.age])/self.lifetime
      
     def action(self,particle,system,local):
+        system.set_particles([Recovered(particle.position,particle.ages)])
         particle.kill(self.kind,system,particle.age,'recovered') 
+
+
+class Vaccination:
+    def __init__(self,**kwargs):
+        self.kind = 'vaccination'
+        self.time = kwargs['time']
+        
+    def rate(self,**kwargs):
+        ex     = kwargs['particle']
+        return 1/self.time[ex.age]
+     
+    def action(self,particle,system,local):
+        system.set_particles([Recovered(particle.position,particle.ages)])
+        particle.kill(self.kind,system,particle.age,'converted')
+
+
+class ExpireImmunity:
+    def __init__(self,**kwargs):
+        self.kind = 'expired'
+        self.time = kwargs['time']
+        
+    def rate(self,**kwargs):
+        ex     = kwargs['particle']
+        return 1/self.time#[ex.age]
+     
+    def action(self,particle,system,local):
+        system.set_particles([Susceptible(particle.position,particle.ages)])
+        particle.kill(self.kind,system,particle.age,'converted')
+
+class Removal:
+    def __init__(self,**kwargs):
+        self.kind = ''
+        
+    def rate(self,**kwargs):
+        ex     = kwargs['particle']
+        system = kwargs['system']
+        system.remove(ex)
+        return 1
+     
+    #def action(self,particle,system,local):
+    #    particle.kill(self.kind,system,particle.age,'converted')        
